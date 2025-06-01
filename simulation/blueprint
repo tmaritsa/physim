@@ -1,0 +1,76 @@
+# (Salin file ini untuk memulai proyek Pygame baru)
+
+import math
+import pygame
+import pymunk
+import sys
+
+# --- Konfigurasi Dasar (Sesuaikan jika perlu) ---
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+FPS = 60 # Frames Per Second
+
+# Judul Jendela
+WINDOW_TITLE = "Template Dasar Pygame"
+
+# Warna Dasar (Tambahkan lebih banyak jika perlu)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+# Contoh warna lain:
+# RED = (255, 0, 0)
+# GREEN = (0, 255, 0)
+# BLUE = (0, 0, 255)
+
+# --- Fungsi Utama Aplikasi ---
+def main():
+    # 1. Inisialisasi Pygame
+    pygame.init()
+
+    # 2. Setup Layar/Jendela
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption(WINDOW_TITLE)
+
+    # 3. Clock untuk mengatur FPS
+    clock = pygame.time.Clock()
+
+    # Variabel untuk mengontrol game loop
+    running = True
+
+    # --- Game Loop Utama ---
+    while running:
+        # 4. Penanganan Event (Input)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # Jika pengguna menutup jendela
+                running = False
+            # Tambahkan penanganan event lain di sini (misalnya keyboard, mouse)
+            # if event.type == pygame.KEYDOWN:
+            #     if event.key == pygame.K_ESCAPE:
+            #         running = False
+            #     elif event.key == pygame.K_SPACE:
+            #         print("Tombol Spasi ditekan!")
+
+        # 5. Logika Update Game (jika ada)
+        # (Di sini kamu akan mengubah posisi objek, skor, dll.)
+        # pass # Hapus 'pass' jika sudah ada logika update
+
+        # 6. Proses Menggambar (Rendering)
+        screen.fill(BLACK)  # Isi layar dengan warna latar belakang (misalnya hitam)
+
+        # --- Gambar semua elemen game di sini ---
+        # Contoh: Menggambar lingkaran putih di tengah layar
+        # pygame.draw.circle(screen, WHITE, (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2), 30)
+        # ---------------------------------------
+
+        pygame.display.flip()  # Update seluruh tampilan layar
+
+        # 7. Atur Kecepatan Game (FPS)
+        clock.tick(FPS)
+
+    # --- Keluar dari Pygame ---
+    pygame.quit()
+    sys.exit()
+
+
+# --- Jalankan Fungsi Utama ---
+if __name__ == "__main__":
+    main()
