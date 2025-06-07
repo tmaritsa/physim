@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QFont, QPalette, QLinearGradient, QColor, QBrush,QIcon,QPixmap
 from PyQt5.QtCore import Qt, QSize
 
-icon_path = f"icons/{i + 1}.png"
+
 
 class LoginScreen(QWidget):
     def __init__(self):
@@ -103,6 +103,7 @@ class Menu(QMainWindow):
         buttons = []
         
         for i in range(6):
+             icon_path = f"icons/{i + 1}.png"
              btn = QPushButton()
              
              btn.setMinimumSize(100, 100)
