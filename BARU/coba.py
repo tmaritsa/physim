@@ -120,7 +120,6 @@ class Login(QWidget):
         self.setLayout(layout)
 
     def check_login(self):
-        # Read the CSV file and check credentials
         with open('source/Akun.csv', mode='r') as file:
             reader = csv.DictReader(file)
             for row in reader:
@@ -128,8 +127,8 @@ class Login(QWidget):
                     self.menu = Menu(self)
                     self.menu.show()
                     self.hide()
-                else:
-                    QMessageBox.warning(self, "Login Failed", "NIM atau password salah.")
+                    return
+            QMessageBox.warning(self, "Login Failed", "NIM atau password salah.")
 
 class Materi(QMainWindow):
     def __init__(self, menu_window, title):
@@ -231,14 +230,20 @@ class GL(Materi):
         self.simulation = GLBBSimulation(width=800, height=400)
         self.pygame_widget = PygameEmbedWidget(self.simulation, 800, 400)
         self.kuis_screen = Kuis(self)
-        _set_content_text=None
 
-        # Wrap pygame_widget in horizontal layout to center it
+        # Wrap pygame_widget in horizontal layout to center and raise its vertical position
         hbox_sim = QHBoxLayout()
         hbox_sim.addStretch()
         hbox_sim.addWidget(self.pygame_widget)
         hbox_sim.addStretch()
-        self.main_layout.addLayout(hbox_sim)
+
+        # Add top margin to raise simulation widget visually
+        container_sim = QWidget()
+        vbox_container = QVBoxLayout()
+        vbox_container.setContentsMargins(0, 24, 0, 0)  # 24px top margin to raise it
+        vbox_container.addLayout(hbox_sim)
+        container_sim.setLayout(vbox_container)
+        self.main_layout.addWidget(container_sim)
 
         self.slider_label = QLabel("Akselerasi: 0.00 m/s²")
         self.slider_label.setAlignment(Qt.AlignCenter)
@@ -249,9 +254,43 @@ class GL(Materi):
         self.slider.setRange(-5000, 5000)
         self.slider.setValue(0)
         self.slider.valueChanged.connect(self.update_acceleration)
-        self.main_layout.addWidget(self.slider)
+        self.slider.setFixedWidth(800)
+        self.slider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.slider.setStyleSheet("""
+            QSlider::groove:horizontal {
+                border-radius: 8px;
+                height: 12px;
+                background: #e0e2e7;
+            }
+            QSlider::handle:horizontal {
+                background: #3b82f6;
+                border-radius: 12px;
+                width: 28px;
+                margin: -8px 0;
+                transition: background-color 0.3s ease;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #2563eb;
+            }
+            QSlider::sub-page:horizontal {
+                background: #3b82f6;
+                border-radius: 8px;
+            }
+            QSlider::add-page:horizontal {
+                background: #e0e2e7;
+                border-radius: 8px;
+            }
+        """)
 
-        # Horizontal layout for Back to Menu and Kuis buttons side by side
+        # Put slider inside horizontal layout for centered expansion
+        slider_layout = QHBoxLayout()
+        slider_layout.setContentsMargins(0, 0, 0, 0)
+        slider_layout.addStretch()
+        slider_layout.addWidget(self.slider)
+        slider_layout.addStretch()
+        self.main_layout.addLayout(slider_layout)
+
+        # Buttons for Menu and Kuis in layout constrained by max width
         button_layout = QHBoxLayout()
         button_layout.setSpacing(20)
 
@@ -281,10 +320,12 @@ class GL(Materi):
         kuis_btn.clicked.connect(self.gokuis)
         button_layout.addWidget(kuis_btn)
 
-        # Add stretch after buttons to left align them nicely
         button_layout.addStretch()
 
-        self.main_layout.addLayout(button_layout)
+        button_container = QWidget()
+        button_container.setLayout(button_layout)
+        button_container.setMaximumWidth(480)  # Constrain buttons to page width approx
+        self.main_layout.addWidget(button_container)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.game_tick)
@@ -549,19 +590,25 @@ class Kuis(QMainWindow):
         main_layout = QVBoxLayout(central)
         main_layout.setContentsMargins(24, 24, 24, 24)
         main_layout.setSpacing(24)
-
-        # Title with manual layered shadow effect
+        
         container = QWidget()
         container_layout = QVBoxLayout()
         container_layout.setSpacing(24)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container.setLayout(container_layout)
         container.setMaximumWidth(900)
-        title_widget = ShadowedTitle("Kuis: Gerak Lurus")
+        # Assuming ShadowedTitle is defined elsewhere, otherwise fallback to QLabel with bold style
+        try:
+            title_widget = ShadowedTitle("Kuis: Gerak Lurus")
+        except NameError:
+            title_widget = QLabel("Kuis: Gerak Lurus")
+            title_widget.setFont(QFont("Inter", 48, QFont.Bold))
+            title_widget.setStyleSheet("color: #111827;")
         container_layout.addWidget(title_widget, alignment=Qt.AlignHCenter)
+        
         main_layout.addWidget(container, alignment=Qt.AlignCenter)
 
-        # Text area container
+        # Text area container styled as a card with subtle rounded corners and background
         self.text_area_container = QFrame()
         self.text_area_container.setStyleSheet("""
             QFrame {
@@ -588,7 +635,7 @@ class Kuis(QMainWindow):
         """)
         self.text_edit.setFixedHeight(72)
         self.text_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.text_edit.setReadOnly(True)  # Make text edit non-editable
+        self.text_edit.setReadOnly(True)
         self.text_area_container.layout().addWidget(self.text_edit)
 
         self.number_circle = QLabel("1", self.text_area_container)
@@ -622,6 +669,7 @@ class Kuis(QMainWindow):
                     border-radius: 20px;
                     color: black;
                     padding: 10px 0;
+                    min-width: 80px;
                 }
                 QPushButton:hover {
                     background-color: #94a3b8;
@@ -629,7 +677,6 @@ class Kuis(QMainWindow):
             """)
             btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
             btn.setMinimumHeight(40)
-            btn.setMinimumWidth(80)  # Set minimum width to 80px
             btn.clicked.connect(lambda checked, b=btn: self.check_answer(b))
             self.buttons_layout.addWidget(btn)
             self.choice_buttons.append(btn)
@@ -640,44 +687,40 @@ class Kuis(QMainWindow):
         buttons_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         main_layout.addWidget(buttons_container, alignment=Qt.AlignCenter)
 
-        # Menu button bottom right
-        self.menu_button = QPushButton("Menu", self)
-        self.menu_button.setStyleSheet(f"""
-            background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {COLOR_BUTTON_START}, stop:1 {COLOR_BUTTON_END});
-            color: white;
-            padding: 12px 24px;
-            font-size: 18px;
-            font-weight: bold;
-            border: none;
-            border-radius: 20px;
-        """)
-        self.menu_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.menu_button.resize(64, 64)
-        self.menu_button.clicked.connect(self.back_to_menu)
-        self.menu_button.raise_()
-
-        # Next button for navigating to the next question
+        # Next button styled according to DEFAULT design
         self.next_button = QPushButton("Next", self)
         self.next_button.setFont(QFont("Sans Serif", 14, QFont.ExtraBold))
         self.next_button.setStyleSheet("""
             QPushButton {
-                background-color: #3b82f6;  /* Blue primary */
+                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {COLOR_BUTTON_START}, stop:1 {COLOR_BUTTON_END});
+                color: white;
+                font-size: 18px;
                 border: none;
                 border-radius: 20px;
                 color: white;
-                padding: 10px 20px;
+                padding: 12px;
                 font-weight: bold;
+                min-width: 100px;
+                min-height: 40px;
+                transition: background-color 0.3s ease;
             }
             QPushButton:hover {
                 background-color: #2563eb;
             }
         """)
         self.next_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.next_button.setMinimumWidth(100)
-        self.next_button.setMinimumHeight(40)
-        self.next_button.hide()  # Initially hidden
         self.next_button.clicked.connect(self.next_question)
         main_layout.addWidget(self.next_button, alignment=Qt.AlignCenter)
+        self.next_button.hide()
+
+        # Menu button styled exactly like Next button
+        self.menu_button = QPushButton("Menu", self)
+        self.menu_button.setFont(QFont("Sans Serif", 14, QFont.ExtraBold))
+        self.menu_button.setStyleSheet(self.next_button.styleSheet())
+        self.menu_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.menu_button.clicked.connect(self.back_to_menu)
+        main_layout.addWidget(self.menu_button, alignment=Qt.AlignCenter)
+        self.menu_button.hide()
 
         # Load questions from CSV
         self.questions = self.load_questions('source/soal.csv')
@@ -693,76 +736,15 @@ class Kuis(QMainWindow):
         return questions
 
     def display_question(self):
-        if self.current_question_index < len(self.questions):
-            question = self.questions[self.current_question_index]
-            self.text_edit.setPlainText(question['soal'])
-            self.number_circle.setText(str(self.current_question_index + 1))
-            self.choice_buttons[0].setText(question['a'])
-            self.choice_buttons[1].setText(question['b'])
-            self.choice_buttons[2].setText(question['c'])
-            self.choice_buttons[3].setText(question['d'])
-            self.menu_button.setVisible(self.current_question_index == len(self.questions) - 1)  # Show menu button only on last question
-            self.next_button.hide()  # Hide next button when question is freshly loaded
-        else:
-            self.menu_button.setVisible(True)
-
-    def check_answer(self, selected_button):
-        # Disable all buttons to prevent re-selection
-        for btn in self.choice_buttons:
-            btn.setEnabled(False)
-
         question = self.questions[self.current_question_index]
-        correct_answer = question['correct'].strip()  # Assuming 'correct' column exists
-        selected_text = selected_button.text()
+        self.text_edit.setPlainText(question['soal'])
+        self.number_circle.setText(str(self.current_question_index + 1))
+        self.choice_buttons[0].setText(question['a'])
+        self.choice_buttons[1].setText(question['b'])
+        self.choice_buttons[2].setText(question['c'])
+        self.choice_buttons[3].setText(question['d'])
 
-        # Color buttons accordingly
-        for btn in self.choice_buttons:
-            if btn.text() == correct_answer:
-                btn.setStyleSheet("""
-                    QPushButton {
-                        background-color: #34d399; /* green */
-                        border: 2px solid #059669;
-                        border-radius: 20px;
-                        color: white;
-                        padding: 10px 0;
-                    }
-                """)
-            elif btn == selected_button:
-                btn.setStyleSheet("""
-                    QPushButton {
-                        background-color: #f87171; /* red */
-                        border: 2px solid #dc2626;
-                        border-radius: 20px;
-                        color: white;
-                        padding: 10px 0;
-                    }
-                """)
-            else:
-                btn.setStyleSheet("""
-                    QPushButton {
-                        background-color: #cbd5e1;
-                        border: 2px solid #374151;
-                        border-radius: 20px;
-                        color: black;
-                        padding: 10px 0;
-                        opacity: 0.6;
-                    }
-                """)
-
-        # Show Next button only if not last question, else keep Menu button visible
-        if self.current_question_index < len(self.questions) - 1:
-            self.menu_button.hide()
-            self.next_button.show()
-        else:
-            self.next_button.hide()
-            self.menu_button.show()
-
-    def next_question(self):
-        self.current_question_index += 1
-        self.next_button.hide()
-        self.menu_button.setVisible(self.current_question_index == len(self.questions) - 1)
-        self.display_question()
-        # Enable and reset buttons styles
+        # When displaying a question reset buttons
         for btn in self.choice_buttons:
             btn.setEnabled(True)
             btn.setStyleSheet("""
@@ -772,18 +754,82 @@ class Kuis(QMainWindow):
                     border-radius: 20px;
                     color: black;
                     padding: 10px 0;
+                    min-width: 80px;
                 }
                 QPushButton:hover {
                     background-color: #94a3b8;
                 }
             """)
 
+        # Hide both navigation buttons until user answers
+        self.next_button.hide()
+        self.menu_button.hide()
+
+    def check_answer(self, selected_button):
+        # Disable buttons to lock answer
+        for btn in self.choice_buttons:
+            btn.setEnabled(False)
+
+        question = self.questions[self.current_question_index]
+        correct_answer_text = question.get('correct', '').strip()
+        selected_text = selected_button.text()
+
+        # Highlight buttons according to correctness
+        for btn in self.choice_buttons:
+            if btn.text() == correct_answer_text:
+                # Correct answer style - green
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #34d399;
+                        border: 2px solid #059669;
+                        border-radius: 20px;
+                        color: white;
+                        padding: 10px 0;
+                        min-width: 80px;
+                    }
+                """)
+            elif btn == selected_button:
+                # Wrong answer style - red
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #f87171;
+                        border: 2px solid #dc2626;
+                        border-radius: 20px;
+                        color: white;
+                        padding: 10px 0;
+                        min-width: 80px;
+                    }
+                """)
+            else:
+                # Other buttons dimmed
+                btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #cbd5e1;
+                        border: 2px solid #374151;
+                        border-radius: 20px;
+                        color: black;
+                        padding: 10px 0;
+                        opacity: 0.6;
+                        min-width: 80px;
+                    }
+                """)
+
+        # Show next or menu button after answer
+        if self.current_question_index < len(self.questions) - 1:
+            self.next_button.show()
+            self.menu_button.hide()
+        else:
+            self.next_button.hide()
+            self.menu_button.show()
+
+    def next_question(self):
+        self.current_question_index += 1
+        self.display_question()
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         margin = 32
-        x = self.width() - self.menu_button.width() - margin
-        y = self.height() - self.menu_button.height() - margin
-        self.menu_button.move(x, y)
+        pass
 
     def back_to_menu(self):
         self.menu_window.menu_window.show()
