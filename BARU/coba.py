@@ -152,11 +152,11 @@ class Materi(QMainWindow):
         self.main_layout = QVBoxLayout()
         self.central.setLayout(self.main_layout)
         self.main_layout.setContentsMargins(40, 40, 40, 40)
-        self.main_layout.setSpacing(20)
+        self.main_layout.setSpacing(0)
 
         container = QWidget()
         container_layout = QVBoxLayout()
-        container_layout.setSpacing(24)
+        container_layout.setSpacing(0)
         container_layout.setContentsMargins(0,0,0,0)
         container.setLayout(container_layout)
         container.setMaximumWidth(900)
@@ -207,7 +207,7 @@ class Materi(QMainWindow):
         """)
 
         account_menu = self.menu_bar.addMenu("Akun")
-        logout_action = QAction("← Logout", self)
+        logout_action = QAction("Logout", self)
         account_menu.addAction(logout_action)
         logout_action.triggered.connect(self.logout)
 
@@ -240,7 +240,7 @@ class GL(Materi):
         # Add top margin to raise simulation widget visually
         container_sim = QWidget()
         vbox_container = QVBoxLayout()
-        vbox_container.setContentsMargins(0, 24, 0, 0)  # 24px top margin to raise it
+        vbox_container.setContentsMargins(0, 0, 0, 0)  # 24px top margin to raise it
         vbox_container.addLayout(hbox_sim)
         container_sim.setLayout(vbox_container)
         self.main_layout.addWidget(container_sim)
