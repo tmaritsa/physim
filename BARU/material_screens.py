@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton,
     QAction, QApplication, QSizePolicy, QFrame, QSlider, QHBoxLayout, QMessageBox
 )
-from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QFont
+from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QFont, QIcon
 from PyQt5.QtCore import Qt, QTimer
 
 from config import COLOR_BACKGROUND_START, COLOR_BACKGROUND_END, COLOR_BUTTON_START, COLOR_BUTTON_END
@@ -25,7 +25,7 @@ class Materi(QMainWindow):
         super(Materi, self).__init__()
         self.menu_window = menu_window
         self.setWindowTitle(title)
-        self.setWindowIcon(QIcon('atom.png'))
+        self.setWindowIcon(QIcon('icons/atom.png'))
 
         # Get primary screen geometry for initial sizing
         screen_rect = QApplication.primaryScreen().geometry()

@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton,
     QAction, QApplication, QSizePolicy, QFrame, QHBoxLayout, QTextEdit, QMessageBox
 )
-from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QFont
+from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QFont, QIcon
 from PyQt5.QtCore import Qt
 
 from config import COLOR_BACKGROUND_START, COLOR_BACKGROUND_END, COLOR_BUTTON_START, COLOR_BUTTON_END
@@ -21,7 +21,7 @@ class Kuis(QMainWindow):
         self.menu_window = menu_window
         self.simulation_type = simulation_type # Store the simulation type
         self.setWindowTitle(f"Kuis: {self.simulation_type}") # Set window title based on simulation type
-        self.setWindowIcon(QIcon('atom.png'))
+        self.setWindowIcon(QIcon('icons/atom.png'))
 
         # Get primary screen geometry for initial sizing
         screen_rect = QApplication.primaryScreen().geometry()

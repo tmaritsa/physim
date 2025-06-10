@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QGridLayout, QLabel, QPushButton,
     QAction, QApplication, QSizePolicy, QSpacerItem
 )
-from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QFont, QPixmap
+from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QFont, QPixmap, QIcon
 from PyQt5.QtCore import Qt, QSize
 
 # Pastikan config dan widgets Anda tersedia
@@ -16,7 +16,7 @@ class Menu(QMainWindow):
         super(Menu, self).__init__()
         self.login_window = login_window
         self.setWindowTitle("PhySim - Menu")
-        self.setWindowIcon(QIcon('atom.png'))
+        self.setWindowIcon(QIcon('icons/atom.png'))
         self.resize(800, 600)
 
         # Menu bar (tidak ada perubahan)

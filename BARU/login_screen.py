@@ -20,7 +20,7 @@ class Login(QWidget):
     def __init__(self):
         super(Login, self).__init__()
         self.setWindowTitle("Physim-Login")
-        self.setWindowIcon(QIcon('atom.png'))
+        self.setWindowIcon(QIcon('icons/atom.png'))
 
         # State to track current mode (Login or Register)
         self.is_register_mode = False
@@ -48,8 +48,8 @@ class Login(QWidget):
         logo_icon = QLabel()
         try:
             # Scale logo size based on initial window size, e.g., 1/3 of the smaller dimension
-            logo_size = min(initial_width, initial_height) // 3
-            logo_icon.setPixmap(QPixmap('atom.png').scaled(logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            logo_size = min(initial_width, initial_height) //5
+            logo_icon.setPixmap(QPixmap('icons/atom.png').scaled(logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         except Exception as e:
             print(f"Error loading logo: {e}")
         logo_icon.setAlignment(Qt.AlignCenter)
