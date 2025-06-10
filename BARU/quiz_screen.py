@@ -18,7 +18,7 @@ class Kuis(QMainWindow):
     """
     def __init__(self, menu_window, simulation_type: str = "Umum"): # NEW: Added simulation_type parameter
         super().__init__()
-        self.menu_window = menu_window 
+        self.menu_window = menu_window
         self.simulation_type = simulation_type # Store the simulation type
         self.setWindowTitle(f"Kuis: {self.simulation_type}") # Set window title based on simulation type
 
@@ -77,7 +77,7 @@ class Kuis(QMainWindow):
         # Dynamic margins and spacing
         main_layout.setContentsMargins(int(initial_width * 0.03), int(initial_height * 0.03), int(initial_width * 0.03), int(initial_height * 0.03))
         main_layout.setSpacing(int(initial_height * 0.04))
-        
+
         main_layout.addStretch(1) # Add flexible space at top
 
         container = QWidget()
@@ -86,7 +86,7 @@ class Kuis(QMainWindow):
         container_layout.setContentsMargins(0, 0, 0, 0)
         container.setLayout(container_layout)
         container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        
+
         try:
             self.title_widget = ShadowedTitle(f"Kuis: {self.simulation_type}", parent=container) # NEW: Update title
         except NameError:
@@ -95,7 +95,7 @@ class Kuis(QMainWindow):
             title_widget.setStyleSheet("color: #111827;")
             self.title_widget = title_widget # Assign to instance variable
         container_layout.addWidget(self.title_widget, alignment=Qt.AlignHCenter) # Use instance variable
-        
+
         main_layout.addWidget(container, alignment=Qt.AlignCenter)
 
         # Text area container styled as a card with subtle rounded corners and background
@@ -124,7 +124,6 @@ class Kuis(QMainWindow):
         # Initial size of number circle, will be scaled in resizeEvent
         circle_size = int(min(initial_width, initial_height) * 0.05)
         self.number_circle.setFixedSize(circle_size, circle_size)
-        self.number_circle.setAlignment(Qt.AlignCenter)
         self.number_circle.setStyleSheet(f"""
             background-color: #a9a9a9;
             border-radius: {int(circle_size / 2)}px;
@@ -132,8 +131,16 @@ class Kuis(QMainWindow):
             font-size: {int(1.3 * QApplication.font().pointSize())}px;
             color: black;
         """)
-        # Initial position of number circle (relative to its parent, text_area_container)
-        self.number_circle.move(int(initial_width * 0.01), int(initial_height * 0.01))
+
+        # Corrected initial position for number_circle
+        # We want it to be at the top-left corner of the QFrame's *visual border area*
+        # This means slightly offset from (0,0) of the parent (text_area_container)
+        # A small positive offset brings it slightly into the container's area,
+        # preventing it from being fully cropped.
+        # The exact values might need fine-tuning based on your QFrame's border width.
+        # Let's try an offset based on a small percentage of the circle size.
+        offset = circle_size * 0.1 # A 10% offset, adjust as needed
+        self.number_circle.move(int(-offset), int(-offset)) # Move slightly inwards from the perfect corner
         self.number_circle.raise_()
 
         main_layout.addWidget(self.text_area_container, alignment=Qt.AlignHCenter)
@@ -241,7 +248,7 @@ class Kuis(QMainWindow):
             # "Rangkaian Resistor": "soal_resistor.csv",
             # "Hukum Archimedes": "soal_archimedes.csv",
         }
-        
+
         file_name = file_map.get(sim_type, "soal_default.csv") # Fallback to a default if type not found
         file_path = f'source/{file_name}'
 
@@ -399,9 +406,9 @@ class Kuis(QMainWindow):
             font-size: {max(12, int(0.02 * circle_size))}px;
             color: black;
         """)
-        # Calculate new position relative to text_area_container's geometry
-        self.number_circle.move(int(self.text_area_container.layout().contentsMargins().left() - circle_size / 2),
-                                int(self.text_area_container.layout().contentsMargins().top() - circle_size / 2))
+        # Corrected position for number_circle on resize
+        offset = circle_size * 0.1 # Consistent offset
+        self.number_circle.move(int(-offset), int(-offset))
 
 
         # Adjust button fonts and padding on resize for choice buttons
@@ -427,7 +434,7 @@ class Kuis(QMainWindow):
                     }}
                 """)
                 btn.setMinimumHeight(min_choice_button_height)
-        
+
         # Adjust Next/Menu button fonts and padding on resize
         next_button_font_size = max(12, int(0.025 * current_height))
         next_button_padding_v = max(8, int(next_button_font_size * 0.7))
@@ -495,4 +502,3 @@ class Kuis(QMainWindow):
         self.menu_window.menu_window.login_window.show()
         self.menu_window.menu_window.close() # Close the Menu window
         self.close() # Close the current Kuis window
-
