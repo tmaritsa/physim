@@ -167,8 +167,8 @@ class SHMSimulation:
 
         freq_text = f"Frequency (Hz): {freq:.2f}"
         period_text = f"Period (s): {period:.2f}"
-        disp_text = f"Displacement (px): {displacement_y:.2f}"
-        vel_text = f"Velocity (px/s): {vel_y:.2f}"
+        disp_text = f"Displacement (m): {displacement_y:.2f}"
+        vel_text = f"Velocity (m/s): {vel_y:.2f}"
         
         self.surface.blit(self.font.render(freq_text, True, (0, 0, 0)), (10, 10))
         self.surface.blit(self.font.render(period_text, True, (0, 0, 0)), (10, 35))

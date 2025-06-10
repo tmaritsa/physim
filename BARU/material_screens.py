@@ -469,7 +469,7 @@ class Bandul(Materi):
 
         # Sliders for SHM parameters (Amplitude, K-constant, Mass)
         # Amplitude Slider
-        self.amplitude_label = QLabel("Amplitudo: 100 px")
+        self.amplitude_label = QLabel("Amplitudo: 100 cm")
         self.amplitude_label.setAlignment(Qt.AlignCenter)
         self.amplitude_label.setFont(QFont("Arial", int(1.2 * QApplication.font().pointSize())))
         self.main_layout.addWidget(self.amplitude_label)
