@@ -1,0 +1,9 @@
+# config.py
+
+# Constants for colors
+COLOR_BACKGROUND_START = "#a2d4f5"
+COLOR_BACKGROUND_END = "#ffffff"
+COLOR_TEXT = "#1e3a8a"
+COLOR_BUTTON_START = "#7aa0ff"
+COLOR_BUTTON_END = "#5e60ce"
+COLOR_ERROR_TEXT = "#111111"

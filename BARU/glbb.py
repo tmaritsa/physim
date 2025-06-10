@@ -27,9 +27,10 @@ class GLBBSimulation:
 
         # Lantai statis
         self.floor_body = pymunk.Body(body_type=pymunk.Body.STATIC)
+        # Recreate floor shape when resizing to match new width
         self.floor_shape = pymunk.Segment(self.floor_body, (0, self.floor_y), (self.width, self.floor_y), 5)
         self.floor_shape.friction = 1.0
-        self.space.add(self.floor_body, self.floor_shape)
+        self.space.add(self.floor_body, self.floor_shape) # floor_body and floor_shape are added initially
 
         # Objek kotak
         self.box_width, self.box_height = 60, 40
@@ -47,9 +48,11 @@ class GLBBSimulation:
         self.reset()
 
     def set_acceleration(self, acc):
+        """Sets the acceleration for the box."""
         self.acceleration = acc
 
     def step(self, dt=1/60.0):
+        """Advances the simulation by a given time step."""
         force_x = self.mass * self.acceleration
         self.box_body.force = (force_x, 0)
         self.space.step(dt)
@@ -68,9 +71,10 @@ class GLBBSimulation:
             self.box_body.position = (self.width - half_width, self.box_body.position.y)
             self.box_body.velocity = (0, self.box_body.velocity.y)
 
-
     def draw(self):
+        """Draws the current state of the simulation onto the surface."""
         self.surface.fill(self.BG_COLOR)
+        # Draw floor based on current width
         pygame.draw.line(self.surface, self.FLOOR_COLOR, (0, self.floor_y), (self.width, self.floor_y), 6)
         
         # Gambar kotak
@@ -111,10 +115,45 @@ class GLBBSimulation:
         self.surface.blit(self.font.render(pos_text, True, (0, 0, 0)), (10, 60))
 
     def reset(self):
-        """Fungsi ini tidak berubah."""
+        """Resets the simulation to its initial state."""
         self.acceleration = 0.0
         self.box_body.position = self.initial_pos
         self.box_body.velocity = (0, 0)
         self.box_body.angle = 0
         self.box_body.angular_velocity = 0
         self.box_body.force = (0, 0)
+
+    def resize(self, new_width, new_height):
+        """
+        Resizes the Pygame surface and adjusts simulation elements
+        to fit the new dimensions.
+        """
+        self.width = new_width
+        self.height = new_height
+        self.surface = pygame.Surface((new_width, new_height)) # Recreate the surface with new dimensions
+
+        # Update floor position based on new height
+        self.floor_y = self.height - 60
+        
+        # Remove old floor shape from space before adding new one
+        self.space.remove(self.floor_shape)
+
+        # Create new floor shape with updated dimensions and attach to the existing floor_body
+        self.floor_shape = pymunk.Segment(self.floor_body, (0, self.floor_y), (self.width, self.floor_y), 5)
+        self.floor_shape.friction = 1.0
+        
+        # Add only the new floor shape to the space (floor_body is already added)
+        self.space.add(self.floor_shape)
+
+        # Adjust initial position of the box based on new dimensions for reset
+        self.initial_pos = (self.width // 4, self.floor_y - (self.box_height / 2) - 5)
+        
+        # Reset the box position relative to the new floor if it's currently on screen
+        current_pos_x = self.box_body.position.x
+        
+        # Keep box roughly in the same relative horizontal position, within new bounds
+        new_box_x = max(self.box_width / 2, min(current_pos_x, self.width - self.box_width / 2))
+        new_box_y = self.floor_y - (self.box_height / 2) - 5 # Always on top of the floor
+        
+        self.box_body.position = (new_box_x, new_box_y)
+        # No need to reset velocity unless explicitly desired on resize
