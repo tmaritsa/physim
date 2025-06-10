@@ -183,14 +183,38 @@ class GL(Materi):
         self.slider_label.setAlignment(Qt.AlignCenter)
         self.slider_label.setFont(QFont("Arial", int(1.2 * QApplication.font().pointSize())))
         self.main_layout.addWidget(self.slider_label)
-
+        
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(-5000, 5000)
         self.slider.setValue(0)
         self.slider.valueChanged.connect(self.update_acceleration)
-        self.slider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed) # Allow width to expand, height fixed
-        # Set initial width for slider, will be adjusted by resizeEvent
-        self.slider.setFixedWidth(pygame_display_width) # Match initial width to pygame display
+        self.slider.setFixedWidth(800)
+        self.slider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.slider.setStyleSheet("""
+            QSlider::groove:horizontal {
+                border-radius: 8px;
+                height: 12px;
+                background: #e0e2e7;
+            }
+            QSlider::handle:horizontal {
+                background: #3b82f6;
+                border-radius: 12px;
+                width: 28px;
+                margin: -8px 0;
+                transition: background-color 0.3s ease;
+            }
+            QSlider::handle:horizontal:hover {
+                background: #2563eb;
+            }
+            QSlider::sub-page:horizontal {
+                background: #3b82f6;
+                border-radius: 8px;
+            }
+            QSlider::add-page:horizontal {
+                background: #e0e2e7;
+                border-radius: 8px;
+            }
+        """)
 
         # Put slider inside horizontal layout for centered expansion
         slider_layout = QHBoxLayout()
