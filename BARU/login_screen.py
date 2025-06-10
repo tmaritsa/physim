@@ -3,23 +3,26 @@
 import csv
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QVBoxLayout, QLineEdit, QPushButton,
-    QMessageBox, QApplication, QSizePolicy
+    QMessageBox, QApplication, QSizePolicy, QHBoxLayout
 )
 from PyQt5.QtGui import QPalette, QLinearGradient, QColor, QBrush, QPixmap
 from PyQt5.QtCore import Qt
 
 from config import COLOR_BACKGROUND_START, COLOR_BACKGROUND_END, COLOR_BUTTON_START, COLOR_BUTTON_END
 from widgets import ShadowedTitle
-from menu_screen import Menu # Import Menu here (circular import will be handled by late import in check_login)
+# Import Menu here, but will handle circular import if needed in check_login by late import
 
 class Login(QWidget):
     """
-    Login screen for the application.
-    Dynamically sizes itself based on screen resolution.
+    Login/Register screen for the application.
+    Dynamically sizes itself based on screen resolution and allows switching modes.
     """
     def __init__(self):
         super(Login, self).__init__()
         self.setWindowTitle("Physim-Login")
+
+        # State to track current mode (Login or Register)
+        self.is_register_mode = False
 
         # Get primary screen geometry
         screen_rect = QApplication.primaryScreen().geometry()
@@ -58,8 +61,8 @@ class Login(QWidget):
         container.setLayout(container_layout)
         container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        title_widget = ShadowedTitle("Physim", parent=container) # Pass container as parent
-        container_layout.addWidget(title_widget, alignment=Qt.AlignHCenter)
+        self.title_widget = ShadowedTitle("Physim", parent=container) # Make title_widget an instance variable
+        container_layout.addWidget(self.title_widget, alignment=Qt.AlignHCenter)
         layout.addWidget(container, alignment=Qt.AlignCenter)
 
         # Dynamic font sizes and padding for QLineEdit and QPushButton
@@ -70,8 +73,8 @@ class Login(QWidget):
         self.nim = QLineEdit()
         self.nim.setPlaceholderText("NIM")
         self.nim.setStyleSheet(f"font-size: {line_edit_font_size}px; padding: {line_edit_padding}px; border-radius: 10px; border: 2px solid #ccc;")
-        self.nim.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed) # Keep height fixed, allow width to expand
-        self.nim.setFixedWidth(int(initial_width * 0.7)) # Set initial width based on window size
+        self.nim.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        self.nim.setFixedWidth(int(initial_width * 0.7))
         layout.addWidget(self.nim, alignment=Qt.AlignHCenter)
 
         self.password = QLineEdit()
@@ -79,16 +82,16 @@ class Login(QWidget):
         self.password.setEchoMode(QLineEdit.Password)
         self.password.setStyleSheet(f"font-size: {line_edit_font_size}px; padding: {line_edit_padding}px; border-radius: 10px; border: 2px solid #ccc;")
         self.password.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        self.password.setFixedWidth(int(initial_width * 0.7)) # Set initial width based on window size
+        self.password.setFixedWidth(int(initial_width * 0.7))
         layout.addWidget(self.password, alignment=Qt.AlignHCenter)
 
         login_btn_font_size = int(1.5 * base_font_size)
         login_btn_padding_v = int(1.0 * base_font_size)
         login_btn_padding_h = int(2.0 * base_font_size)
 
-        login_btn = QPushButton("Login")
-        login_btn.setObjectName("Login") # Set the object name for findChild to work
-        login_btn.setStyleSheet(f"""
+        self.action_button = QPushButton("Login") # This button performs login or register
+        self.action_button.setObjectName("ActionButton") # Set object name for findChild
+        self.action_button.setStyleSheet(f"""
             background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {COLOR_BUTTON_START}, stop:1 {COLOR_BUTTON_END});
             color: white;
             padding: {login_btn_padding_v}px {login_btn_padding_h}px;
@@ -97,10 +100,30 @@ class Login(QWidget):
             border: none;
             border-radius: 20px;
         """)
-        login_btn.clicked.connect(self.check_login)
-        login_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed) # Fixed size, but centrally aligned
-        login_btn.setFixedWidth(int(initial_width * 0.5)) # Set initial width based on window size
-        layout.addWidget(login_btn, alignment=Qt.AlignCenter)
+        self.action_button.clicked.connect(self.perform_action)
+        self.action_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.action_button.setFixedWidth(int(initial_width * 0.5))
+        layout.addWidget(self.action_button, alignment=Qt.AlignCenter)
+
+        # New button for toggling between login/register modes
+        self.toggle_mode_button = QPushButton("Buat Akun Baru")
+        self.toggle_mode_button.setObjectName("ToggleModeButton")
+        toggle_btn_font_size = int(1.5 * base_font_size)
+        self.toggle_mode_button.setStyleSheet(f"""
+            QPushButton {{
+                background: transparent;
+                color: #1e3a8a;
+                border: none;
+                font-size: {toggle_btn_font_size}px;
+                padding: 5px;
+            }}
+            QPushButton:hover {{
+                text-decoration: underline;
+            }}
+        """)
+        self.toggle_mode_button.clicked.connect(self.toggle_mode)
+        layout.addWidget(self.toggle_mode_button, alignment=Qt.AlignCenter)
+
 
         layout.addStretch(1) # Add flexible space at the bottom
 
@@ -122,9 +145,9 @@ class Login(QWidget):
         self.nim.setFixedWidth(int(current_width * 0.7))
         self.password.setFixedWidth(int(current_width * 0.7))
         
-        login_button = self.findChild(QPushButton, "Login") # Find login_btn by object name
-        if login_button: # Check if the button was found
-            login_button.setFixedWidth(int(current_width * 0.5)) 
+        action_button = self.findChild(QPushButton, "ActionButton")
+        if action_button:
+            action_button.setFixedWidth(int(current_width * 0.5)) 
 
         # Update logo size
         logo_icon = self.findChild(QLabel) # Assumes the first QLabel is the logo
@@ -133,24 +156,106 @@ class Login(QWidget):
             logo_icon.setPixmap(QPixmap("icons/atom.png").scaled(logo_size, logo_size, Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
         # Update shadowed title size (handled by its own resizeEvent if parent is set correctly)
-        self.findChild(ShadowedTitle)._update_sizes() # Manually trigger update if needed
+        self.title_widget._update_sizes() # Access directly if stored as instance variable
 
+
+    def perform_action(self):
+        """Performs login or registration based on current mode."""
+        if self.is_register_mode:
+            self.register_account()
+        else:
+            self.check_login()
+
+    def toggle_mode(self):
+        """Toggles between login and register modes."""
+        self.is_register_mode = not self.is_register_mode
+        self.nim.clear() # Clear fields when switching modes
+        self.password.clear()
+
+        if self.is_register_mode:
+            self.setWindowTitle("Physim - Register")
+            self.title_widget._title = "Registrasi" # Update internal title string
+            self.title_widget._update_sizes() # Trigger title update
+            self.action_button.setText("Registrasi")
+            self.toggle_mode_button.setText("Sudah Punya Akun? Login")
+        else:
+            self.setWindowTitle("Physim-Login")
+            self.title_widget._title = "Physim" # Reset internal title string
+            self.title_widget._update_sizes() # Trigger title update
+            self.action_button.setText("Login")
+            self.toggle_mode_button.setText("Buat Akun Baru")
 
     def check_login(self):
         """Handles login attempt by checking credentials from CSV."""
         # Late import to prevent circular dependency
         from menu_screen import Menu 
 
+        nim = self.nim.text()
+        password = self.password.text()
+
+        if not nim or not password:
+            QMessageBox.warning(self, "Login Gagal", "NIM dan Password tidak boleh kosong.")
+            return
+
         try:
             with open('source/Akun.csv', mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
-                    if self.nim.text() == row['NIM'] and self.password.text() == row['PASSWORD']:
+                    if nim == row['NIM'] and password == row['PASSWORD']:
                         self.menu = Menu(self)
                         self.menu.show()
                         self.hide()
                         return
-                QMessageBox.warning(self, "Login Failed", "NIM atau password salah.")
+                QMessageBox.warning(self, "Login Gagal", "NIM atau password salah.")
         except FileNotFoundError:
             QMessageBox.critical(self, "Error", "File 'source/Akun.csv' tidak ditemukan. Pastikan file ada di direktori yang benar.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Terjadi kesalahan saat membaca file akun: {e}")
+
+    def register_account(self):
+        """Handles new account registration by saving credentials to CSV."""
+        nim = self.nim.text()
+        password = self.password.text()
+
+        if not nim or not password:
+            QMessageBox.warning(self, "Registrasi Gagal", "NIM dan Password tidak boleh kosong.")
+            return
+
+        # Check if NIM already exists
+        nim_exists = False
+        try:
+            with open('source/Akun.csv', mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    if nim == row['NIM']:
+                        nim_exists = True
+                        break
+        except FileNotFoundError:
+            # If file doesn't exist, it will be created, so NIM doesn't exist yet.
+            pass
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Terjadi kesalahan saat memeriksa NIM: {e}")
+            return
+
+        if nim_exists:
+            QMessageBox.warning(self, "Registrasi Gagal", "NIM sudah terdaftar. Gunakan NIM lain atau Login.")
+            return
+
+        # Register new account
+        try:
+            # Open in append mode, 'a', and create file if it doesn't exist
+            with open('source/Akun.csv', mode='a', newline='') as file:
+                fieldnames = ['NIM', 'PASSWORD']
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+                # Write header only if file is empty (newly created)
+                if file.tell() == 0:
+                    writer.writeheader()
+                
+                writer.writerow({'NIM': nim, 'PASSWORD': password})
+            
+            QMessageBox.information(self, "Registrasi Berhasil", "Akun berhasil dibuat! Silakan Login.")
+            self.toggle_mode() # Switch back to login mode after successful registration
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Terjadi kesalahan saat mendaftarkan akun: {e}")
 

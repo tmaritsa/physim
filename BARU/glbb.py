@@ -2,6 +2,7 @@
 
 import pygame
 import pymunk
+# Removed 'import math' as it's no longer needed for GLBBSimulation
 
 class GLBBSimulation:
     def __init__(self, width=800, height=400):

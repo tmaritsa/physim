@@ -16,10 +16,11 @@ class Kuis(QMainWindow):
     Quiz screen for the application.
     Elements dynamically resize with the window.
     """
-    def __init__(self, menu_window):
+    def __init__(self, menu_window, simulation_type: str = "Umum"): # NEW: Added simulation_type parameter
         super().__init__()
-        self.menu_window = menu_window # This will be the GL instance, not directly the Menu instance.
-        self.setWindowTitle("Kuis")
+        self.menu_window = menu_window 
+        self.simulation_type = simulation_type # Store the simulation type
+        self.setWindowTitle(f"Kuis: {self.simulation_type}") # Set window title based on simulation type
 
         # Get primary screen geometry for initial sizing
         screen_rect = QApplication.primaryScreen().geometry()
@@ -87,13 +88,13 @@ class Kuis(QMainWindow):
         container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         
         try:
-            title_widget = ShadowedTitle("Kuis: Gerak Lurus", parent=container) # Pass container as parent
+            self.title_widget = ShadowedTitle(f"Kuis: {self.simulation_type}", parent=container) # NEW: Update title
         except NameError:
-            # Fallback if ShadowedTitle is not defined (unlikely in this context)
-            title_widget = QLabel("Kuis: Gerak Lurus")
+            title_widget = QLabel(f"Kuis: {self.simulation_type}") # NEW: Update title
             title_widget.setFont(QFont("Inter", int(3 * QApplication.font().pointSize()), QFont.Bold))
             title_widget.setStyleSheet("color: #111827;")
-        container_layout.addWidget(title_widget, alignment=Qt.AlignHCenter)
+            self.title_widget = title_widget # Assign to instance variable
+        container_layout.addWidget(self.title_widget, alignment=Qt.AlignHCenter) # Use instance variable
         
         main_layout.addWidget(container, alignment=Qt.AlignCenter)
 
@@ -221,30 +222,50 @@ class Kuis(QMainWindow):
 
         main_layout.addStretch(1) # Add flexible space at bottom
 
-        # Load questions from CSV
-        self.questions = self.load_questions('source/soal.csv')
+        # Load questions from CSV based on simulation type
+        self.questions = self.load_questions_for_type(self.simulation_type) # NEW: Call new loading function
         self.current_question_index = 0
         self.display_question()
 
-    def load_questions(self, file_path):
-        """Loads quiz questions from a CSV file."""
+    def load_questions_for_type(self, sim_type: str): # NEW: Function to load specific quiz files
+        """
+        Loads quiz questions from a CSV file based on the simulation type.
+        Maps simulation_type string to a specific CSV file name.
+        """
+        file_map = {
+            "Gerak Lurus": "soal_gl.csv",
+            "Gerak Harmonik": "soal_shm.csv",
+            # Add other simulation types and their corresponding quiz files here:
+            # "Hukum Newton": "soal_newton.csv",
+            # "Hukum Hooke": "soal_hooke.csv",
+            # "Rangkaian Resistor": "soal_resistor.csv",
+            # "Hukum Archimedes": "soal_archimedes.csv",
+        }
+        
+        file_name = file_map.get(sim_type, "soal_default.csv") # Fallback to a default if type not found
+        file_path = f'source/{file_name}'
+
         questions = []
         try:
             with open(file_path, mode='r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     questions.append(row)
+            if not questions:
+                QMessageBox.information(self, "Informasi", f"File soal untuk '{sim_type}' kosong atau tidak memiliki data yang valid. Silakan tambahkan soal ke '{file_name}'.")
         except FileNotFoundError:
-            QMessageBox.critical(self, "Error", f"File soal.csv tidak ditemukan di {file_path}")
-            return []
+            QMessageBox.critical(self, "Error", f"File soal '{file_name}' untuk '{sim_type}' tidak ditemukan di 'source/'. Pastikan file ada.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Terjadi kesalahan saat membaca soal dari '{file_name}': {e}")
         return questions
 
     def display_question(self):
         """Displays the current quiz question and its choices."""
         if not self.questions:
-            self.text_edit.setPlainText("Tidak ada soal yang tersedia.")
+            self.text_edit.setPlainText("Tidak ada soal yang tersedia untuk simulasi ini.") # NEW: More specific message
             for btn in self.choice_buttons:
                 btn.hide() # Hide buttons if no questions
+            self.next_button.hide()
             self.menu_button.show()
             return
 
@@ -362,7 +383,7 @@ class Kuis(QMainWindow):
         current_height = self.height()
 
         # Update shadowed title size
-        self.findChild(ShadowedTitle)._update_sizes()
+        self.title_widget._update_sizes() # Use instance variable
 
         # Adjust text_area_container minimum height
         self.text_area_container.setMinimumHeight(int(current_height * 0.15))
@@ -461,14 +482,14 @@ class Kuis(QMainWindow):
 
     def back_to_menu(self):
         """Returns to the main menu from the quiz."""
-        # self.menu_window here is a GL instance
-        # The GL instance's menu_window is the actual Menu instance
+        # self.menu_window here is a GL or Bandul instance
+        # The GL/Bandul instance's menu_window is the actual Menu instance
         self.menu_window.menu_window.show() # Show the Menu window
         self.close() # Close the current Kuis window
 
     def handle_logout(self):
         """Handles logout action from the quiz."""
-        # self.menu_window here is a GL instance
+        # self.menu_window here is a GL or Bandul instance
         # self.menu_window.menu_window is the Menu instance
         # self.menu_window.menu_window.login_window is the Login instance
         self.menu_window.menu_window.login_window.show()
