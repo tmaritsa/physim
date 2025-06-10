@@ -25,6 +25,7 @@ class Materi(QMainWindow):
         super(Materi, self).__init__()
         self.menu_window = menu_window
         self.setWindowTitle(title)
+        self.setWindowIcon(QIcon('atom.png'))
 
         # Get primary screen geometry for initial sizing
         screen_rect = QApplication.primaryScreen().geometry()

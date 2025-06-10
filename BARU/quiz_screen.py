@@ -21,6 +21,7 @@ class Kuis(QMainWindow):
         self.menu_window = menu_window
         self.simulation_type = simulation_type # Store the simulation type
         self.setWindowTitle(f"Kuis: {self.simulation_type}") # Set window title based on simulation type
+        self.setWindowIcon(QIcon('atom.png'))
 
         # Get primary screen geometry for initial sizing
         screen_rect = QApplication.primaryScreen().geometry()

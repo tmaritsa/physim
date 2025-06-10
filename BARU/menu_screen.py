@@ -16,6 +16,7 @@ class Menu(QMainWindow):
         super(Menu, self).__init__()
         self.login_window = login_window
         self.setWindowTitle("PhySim - Menu")
+        self.setWindowIcon(QIcon('atom.png'))
         self.resize(800, 600)
 
         # Menu bar (tidak ada perubahan)
