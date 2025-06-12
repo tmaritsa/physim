@@ -1,5 +1,3 @@
-# quiz_screen.py
-
 import csv
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton,
@@ -12,25 +10,19 @@ from config import COLOR_BACKGROUND_START, COLOR_BACKGROUND_END, COLOR_BUTTON_ST
 from widgets import ShadowedTitle
 
 class Kuis(QMainWindow):
-    """
-    Quiz screen for the application.
-    Elements dynamically resize with the window.
-    """
-    def __init__(self, menu_window, simulation_type: str = "Umum"): # NEW: Added simulation_type parameter
+    def __init__(self, menu_window, simulation_type: str = "Umum"):
         super().__init__()
         self.menu_window = menu_window
-        self.simulation_type = simulation_type # Store the simulation type
-        self.setWindowTitle(f"Kuis: {self.simulation_type}") # Set window title based on simulation type
+        self.simulation_type = simulation_type
+        self.setWindowTitle(f"Kuis: {self.simulation_type}")
         self.setWindowIcon(QIcon('icons/atom.png'))
 
-        # Get primary screen geometry for initial sizing
         screen_rect = QApplication.primaryScreen().geometry()
-        initial_width = int(screen_rect.width() * 0.7) # 70% of screen width
-        initial_height = int(screen_rect.height() * 0.7) # 70% of screen height
+        initial_width = int(screen_rect.width() * 0.7)
+        initial_height = int(screen_rect.height() * 0.7)
         self.resize(initial_width, initial_height)
-        self.setMinimumSize(int(initial_width * 0.6), int(initial_height * 0.6)) # Set a flexible minimum size
+        self.setMinimumSize(int(initial_width * 0.6), int(initial_height * 0.6))
 
-        # Background gradient
         palette = QPalette()
         gradient = QLinearGradient(0, 0, screen_rect.width(), screen_rect.height())
         gradient.setColorAt(0.0, QColor(COLOR_BACKGROUND_START))
@@ -39,9 +31,7 @@ class Kuis(QMainWindow):
         self.setPalette(palette)
         self.setAutoFillBackground(True)
 
-        # Menu bar with Akun and Logout action
         menubar = self.menuBar()
-        # Adjust font sizes for menubar
         menubar.setStyleSheet(f"""
             QMenuBar {{
                 background-color: #f9f9f9;
@@ -75,11 +65,10 @@ class Kuis(QMainWindow):
         central = QWidget()
         self.setCentralWidget(central)
         main_layout = QVBoxLayout(central)
-        # Dynamic margins and spacing
         main_layout.setContentsMargins(int(initial_width * 0.03), int(initial_height * 0.03), int(initial_width * 0.03), int(initial_height * 0.03))
         main_layout.setSpacing(int(initial_height * 0.04))
 
-        main_layout.addStretch(1) # Add flexible space at top
+        main_layout.addStretch(1)
 
         container = QWidget()
         container_layout = QVBoxLayout()
@@ -89,17 +78,16 @@ class Kuis(QMainWindow):
         container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         try:
-            self.title_widget = ShadowedTitle(f"Kuis: {self.simulation_type}", parent=container) # NEW: Update title
+            self.title_widget = ShadowedTitle(f"Kuis: {self.simulation_type}", parent=container)
         except NameError:
-            title_widget = QLabel(f"Kuis: {self.simulation_type}") # NEW: Update title
+            title_widget = QLabel(f"Kuis: {self.simulation_type}")
             title_widget.setFont(QFont("Inter", int(3 * QApplication.font().pointSize()), QFont.Bold))
             title_widget.setStyleSheet("color: #111827;")
-            self.title_widget = title_widget # Assign to instance variable
-        container_layout.addWidget(self.title_widget, alignment=Qt.AlignHCenter) # Use instance variable
+            self.title_widget = title_widget
+        container_layout.addWidget(self.title_widget, alignment=Qt.AlignHCenter)
 
         main_layout.addWidget(container, alignment=Qt.AlignCenter)
 
-        # Text area container styled as a card with subtle rounded corners and background
         self.text_area_container = QFrame()
         self.text_area_container.setStyleSheet("""
             QFrame {
@@ -109,11 +97,9 @@ class Kuis(QMainWindow):
             }
         """)
         self.text_area_container.setLayout(QHBoxLayout())
-        # Dynamic margins for text area
         self.text_area_container.layout().setContentsMargins(int(initial_width * 0.06), int(initial_height * 0.02), int(initial_width * 0.02), int(initial_height * 0.02))
         self.text_area_container.layout().setSpacing(0)
         self.text_area_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-
 
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet(f"background-color: transparent; border: none; font-size: {int(1.5 * QApplication.font().pointSize())}px; color: black; padding-left: 0px; resize: none;")
@@ -122,7 +108,6 @@ class Kuis(QMainWindow):
         self.text_area_container.layout().addWidget(self.text_edit)
 
         self.number_circle = QLabel("1", self.text_area_container)
-        # Initial size of number circle, will be scaled in resizeEvent
         circle_size = int(min(initial_width, initial_height) * 0.05)
         self.number_circle.setFixedSize(circle_size, circle_size)
         self.number_circle.setStyleSheet(f"""
@@ -133,33 +118,24 @@ class Kuis(QMainWindow):
             color: black;
         """)
 
-        # Corrected initial position for number_circle
-        # We want it to be at the top-left corner of the QFrame's *visual border area*
-        # This means slightly offset from (0,0) of the parent (text_area_container)
-        # A small positive offset brings it slightly into the container's area,
-        # preventing it from being fully cropped.
-        # The exact values might need fine-tuning based on your QFrame's border width.
-        # Let's try an offset based on a small percentage of the circle size.
-        offset = circle_size * 0.1 # A 10% offset, adjust as needed
-        self.number_circle.move(int(-offset), int(-offset)) # Move slightly inwards from the perfect corner
+        offset = circle_size * 0.1
+        self.number_circle.move(int(-offset), int(-offset))
         self.number_circle.raise_()
 
         main_layout.addWidget(self.text_area_container, alignment=Qt.AlignHCenter)
 
-        # Buttons for choices
         self.buttons_layout = QVBoxLayout()
         self.buttons_layout.setSpacing(int(initial_height * 0.025))
         self.buttons_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Dynamic font size and padding for choice buttons
         choice_button_font_size = int(1.4 * QApplication.font().pointSize())
         choice_button_padding_v = int(1.0 * QApplication.font().pointSize())
-        min_choice_button_height = int(initial_height * 0.07) # Dynamic min height
+        min_choice_button_height = int(initial_height * 0.07)
 
         self.choice_buttons = []
         for i in range(1, 5):
             btn = QPushButton(f"Pilihan {i}")
-            btn.setObjectName(f"ChoiceButton_{i}") # Set unique object name for each choice button
+            btn.setObjectName(f"ChoiceButton_{i}")
             btn.setFont(QFont("Sans Serif", choice_button_font_size, QFont.ExtraBold))
             btn.setStyleSheet(f"""
                 QPushButton {{
@@ -185,7 +161,6 @@ class Kuis(QMainWindow):
         buttons_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         main_layout.addWidget(buttons_container, alignment=Qt.AlignCenter)
 
-        # Next button styled dynamically
         next_button_font_size = int(1.5 * QApplication.font().pointSize())
         next_button_padding_v = int(1.0 * QApplication.font().pointSize())
         next_button_padding_h = int(2.0 * QApplication.font().pointSize())
@@ -193,7 +168,7 @@ class Kuis(QMainWindow):
         min_next_button_height = int(initial_height * 0.07)
 
         self.next_button = QPushButton("Next", self)
-        self.next_button.setObjectName("NextButton") # Set object name
+        self.next_button.setObjectName("NextButton")
         self.next_button.setFont(QFont("Sans Serif", next_button_font_size, QFont.ExtraBold))
         self.next_button.setStyleSheet(f"""
             QPushButton {{
@@ -218,9 +193,8 @@ class Kuis(QMainWindow):
         main_layout.addWidget(self.next_button, alignment=Qt.AlignCenter)
         self.next_button.hide()
 
-        # Menu button styled exactly like Next button
         self.menu_button = QPushButton("Menu", self)
-        self.menu_button.setObjectName("QuizMenuButton") # Set object name
+        self.menu_button.setObjectName("QuizMenuButton")
         self.menu_button.setFont(QFont("Sans Serif", next_button_font_size, QFont.ExtraBold))
         self.menu_button.setStyleSheet(self.next_button.styleSheet())
         self.menu_button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -228,18 +202,13 @@ class Kuis(QMainWindow):
         main_layout.addWidget(self.menu_button, alignment=Qt.AlignCenter)
         self.menu_button.hide()
 
-        main_layout.addStretch(1) # Add flexible space at bottom
+        main_layout.addStretch(1)
 
-        # Load questions from CSV based on simulation type
-        self.questions = self.load_questions_for_type(self.simulation_type) # NEW: Call new loading function
+        self.questions = self.load_questions_for_type(self.simulation_type)
         self.current_question_index = 0
         self.display_question()
 
-    def load_questions_for_type(self, sim_type: str): # NEW: Function to load specific quiz files
-        """
-        Loads quiz questions from a CSV file based on the simulation type.
-        Maps simulation_type string to a specific CSV file name.
-        """
+    def load_questions_for_type(self, sim_type: str):
         file_map = {
             "Gerak Lurus": "soal_gl.csv",
             "Gerak Harmonik": "soal_shm.csv",
@@ -250,7 +219,7 @@ class Kuis(QMainWindow):
             # "Hukum Archimedes": "soal_archimedes.csv",
         }
 
-        file_name = file_map.get(sim_type, "soal_default.csv") # Fallback to a default if type not found
+        file_name = file_map.get(sim_type, "soal_default.csv")
         file_path = f'source/{file_name}'
 
         questions = []
@@ -268,11 +237,10 @@ class Kuis(QMainWindow):
         return questions
 
     def display_question(self):
-        """Displays the current quiz question and its choices."""
         if not self.questions:
-            self.text_edit.setPlainText("Tidak ada soal yang tersedia untuk simulasi ini.") # NEW: More specific message
+            self.text_edit.setPlainText("Tidak ada soal yang tersedia untuk simulasi ini.")
             for btn in self.choice_buttons:
-                btn.hide() # Hide buttons if no questions
+                btn.hide()
             self.next_button.hide()
             self.menu_button.show()
             return
@@ -285,15 +253,13 @@ class Kuis(QMainWindow):
         self.choice_buttons[2].setText(question['c'])
         self.choice_buttons[3].setText(question['d'])
 
-        # When displaying a question reset buttons
-        current_width = self.width() # Get current width for dynamic padding
+        current_width = self.width()
         current_height = self.height()
         choice_button_font_size = max(10, int(0.02 * current_height))
         choice_button_padding_v = max(5, int(choice_button_font_size * 0.7))
 
         for btn in self.choice_buttons:
             btn.setEnabled(True)
-            # Reset stylesheet to default for current theme
             btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: #cbd5e1;
@@ -308,13 +274,10 @@ class Kuis(QMainWindow):
                 }}
             """)
 
-        # Hide both navigation buttons until user answers
         self.next_button.hide()
         self.menu_button.hide()
 
     def check_answer(self, selected_button):
-        """Checks the selected answer and highlights buttons accordingly."""
-        # Disable buttons to lock answer
         for btn in self.choice_buttons:
             btn.setEnabled(False)
 
@@ -322,16 +285,13 @@ class Kuis(QMainWindow):
         correct_answer_text = question.get('correct', '').strip()
         selected_text = selected_button.text()
 
-        # Get current width/height for dynamic padding when applying styles
         current_width = self.width()
         current_height = self.height()
         choice_button_font_size = max(10, int(0.02 * current_height))
         choice_button_padding_v = max(5, int(choice_button_font_size * 0.7))
 
-        # Highlight buttons according to correctness
         for btn in self.choice_buttons:
             if btn.text() == correct_answer_text:
-                # Correct answer style - green
                 btn.setStyleSheet(f"""
                     QPushButton {{
                         background-color: #34d399;
@@ -343,7 +303,6 @@ class Kuis(QMainWindow):
                     }}
                 """)
             elif btn == selected_button:
-                # Wrong answer style - red
                 btn.setStyleSheet(f"""
                     QPushButton {{
                         background-color: #f87171;
@@ -355,7 +314,6 @@ class Kuis(QMainWindow):
                     }}
                 """)
             else:
-                # Other buttons dimmed
                 btn.setStyleSheet(f"""
                     QPushButton {{
                         background-color: #cbd5e1;
@@ -368,7 +326,6 @@ class Kuis(QMainWindow):
                     }}
                 """)
 
-        # Show next or menu button after answer
         if self.current_question_index < len(self.questions) - 1:
             self.next_button.show()
             self.menu_button.hide()
@@ -377,26 +334,18 @@ class Kuis(QMainWindow):
             self.menu_button.show()
 
     def next_question(self):
-        """Moves to the next question in the quiz."""
         self.current_question_index += 1
         self.display_question()
 
     def resizeEvent(self, event):
-        """
-        Overrides resizeEvent to dynamically adjust element sizes and positions
-        in the Kuis screen when the window size changes.
-        """
         super().resizeEvent(event)
         current_width = self.width()
         current_height = self.height()
 
-        # Update shadowed title size
-        self.title_widget._update_sizes() # Use instance variable
+        self.title_widget._update_sizes()
 
-        # Adjust text_area_container minimum height
         self.text_area_container.setMinimumHeight(int(current_height * 0.15))
 
-        # Re-position and re-size number_circle dynamically
         circle_size = int(min(current_width, current_height) * 0.05)
         self.number_circle.setFixedSize(circle_size, circle_size)
         self.number_circle.setAlignment(Qt.AlignCenter)
@@ -407,12 +356,9 @@ class Kuis(QMainWindow):
             font-size: {max(12, int(0.02 * circle_size))}px;
             color: black;
         """)
-        # Corrected position for number_circle on resize
-        offset = circle_size * 0.1 # Consistent offset
+        offset = circle_size * 0.1
         self.number_circle.move(int(-offset), int(-offset))
 
-
-        # Adjust button fonts and padding on resize for choice buttons
         choice_button_font_size = max(10, int(0.02 * current_height))
         choice_button_padding_v = max(5, int(choice_button_font_size * 0.7))
         min_choice_button_height = max(30, int(current_height * 0.07))
@@ -436,7 +382,6 @@ class Kuis(QMainWindow):
                 """)
                 btn.setMinimumHeight(min_choice_button_height)
 
-        # Adjust Next/Menu button fonts and padding on resize
         next_button_font_size = max(12, int(0.025 * current_height))
         next_button_padding_v = max(8, int(next_button_font_size * 0.7))
         next_button_padding_h = max(15, int(next_button_font_size * 1.3))
@@ -487,19 +432,11 @@ class Kuis(QMainWindow):
                 }}
             """)
 
-
     def back_to_menu(self):
-        """Returns to the main menu from the quiz."""
-        # self.menu_window here is a GL or Bandul instance
-        # The GL/Bandul instance's menu_window is the actual Menu instance
-        self.menu_window.menu_window.show() # Show the Menu window
-        self.close() # Close the current Kuis window
+        self.menu_window.menu_window.show()
+        self.close()
 
     def handle_logout(self):
-        """Handles logout action from the quiz."""
-        # self.menu_window here is a GL or Bandul instance
-        # self.menu_window.menu_window is the Menu instance
-        # self.menu_window.menu_window.login_window is the Login instance
         self.menu_window.menu_window.login_window.show()
-        self.menu_window.menu_window.close() # Close the Menu window
-        self.close() # Close the current Kuis window
+        self.menu_window.menu_window.close()
+        self.close()

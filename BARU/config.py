@@ -1,6 +1,3 @@
-# config.py
-
-# Constants for colors
 COLOR_BACKGROUND_START = "#a2d4f5"
 COLOR_BACKGROUND_END = "#ffffff"
 COLOR_TEXT = "#1e3a8a"
