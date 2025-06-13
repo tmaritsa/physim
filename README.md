@@ -120,5 +120,5 @@ Untuk pertanyaan atau kolaborasi, silakan hubungi:
 
 * \[Nashr Ardy Wahyono\]  
 * \[nashrardy@Gmail.com\]  
-* [Linkedin](www.linkedin.com/in/nashr-ardy-wahyono)
+* <a href="www.linkedin.com/in/nashr-ardy-wahyono" target="_blank">Linkedin</a>
 
