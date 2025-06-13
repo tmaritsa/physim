@@ -520,7 +520,7 @@ class Bandul(Materi):
         self.main_layout.addWidget(button_container, alignment=Qt.AlignCenter)
 
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.game_tick)
+
         self.timer.start(1000 // 60)
 
     def gokuis_shm(self):
