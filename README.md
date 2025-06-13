@@ -22,7 +22,7 @@ Proyek ini dibangun dengan arsitektur modular, menjadikannya *scalable* dan muda
 
 ### **2\. Fitur-Fitur Utama**
 
-* **Sistem Akun (Login & Registrasi):** Pengguna dapat membuat akun baru atau masuk menggunakan NIM dan password. Data akun disimpan dalam file CSV (Akun.csv).  
+* **Sistem Akun (Login & Registrasi):** Pengguna dapat membuat akun baru atau masuk menggunakan NIM dan password. Data akun disimpan dalam file CSV (```Akun.csv```).  
 * **Antarmuka Pengguna Responsif (Responsive UI):** Aplikasi dirancang untuk menyesuaikan diri dengan berbagai resolusi layar laptop, memastikan tampilan yang optimal dan proporsional.  
 * **Basis Kode Modular:** Kode aplikasi dipecah menjadi beberapa modul (file Python) yang terpisah berdasarkan fungsinya, memudahkan pemeliharaan, *debugging*, dan pengembangan kolaboratif.  
 * **Simulasi Fisika Interaktif:**  
@@ -43,54 +43,57 @@ Proyek ini dibangun dengan arsitektur modular, menjadikannya *scalable* dan muda
 
 Struktur direktori proyek dirancang untuk kejelasan dan modularitas:
 
-your\_project\_root/  
-├── main.py                    \# Titik masuk aplikasi  
-├── config.py                  \# Konstanta konfigurasi global (warna, dll.)  
-├── widgets.py                 \# Widget GUI kustom yang dapat digunakan kembali  
-├── login\_screen.py            \# Logika dan UI untuk layar Login/Registrasi  
-├── menu\_screen.py             \# Logika dan UI untuk layar Menu Utama  
-├── material\_screens.py        \# Kelas dasar Materi dan implementasi layar simulasi (GL, SHM, dll.)  
-├── harmonic\_simulation.py     \# Logika simulasi Gerak Harmonik Sederhana (SHM)  
-├── glbb.py                    \# Logika simulasi Gerak Lurus Berubah Beraturan (GLBB)  
-├── quiz\_screen.py             \# Logika dan UI untuk layar Kuis Adaptif  
-├── source/                    \# Folder untuk file data  
-│   ├── Akun.csv               \# Data akun pengguna (NIM, Password)  
-│   ├── soal\_gl.csv            \# Soal kuis untuk Gerak Lurus  
-│   └── soal\_shm.csv           \# Soal kuis untuk Gerak Harmonik (perlu ditambahkan)  
-└── icons/                     \# Folder untuk aset ikon dan gambar  
-    ├── atom.png               \# Logo aplikasi  
-    ├── 1.png                  \# Ikon materi 1  
-    └── ...                    \# Ikon materi lainnya (2.png, 3.png, dst.)
+	your\_project\_root/  
+	├── main.py                    \# Titik masuk aplikasi  
+	├── config.py                  \# Konstanta konfigurasi global (warna, dll.)  
+	├── widgets.py                 \# Widget GUI kustom yang dapat digunakan kembali  
+	├── login\_screen.py            \# Logika dan UI untuk layar Login/Registrasi  
+	├── menu\_screen.py             \# Logika dan UI untuk layar Menu Utama  
+	├── material\_screens.py        \# Kelas dasar Materi dan implementasi layar simulasi (GL, SHM, dll.)  
+	├── harmonic\_simulation.py     \# Logika simulasi Gerak Harmonik Sederhana (SHM)  
+	├── glbb.py                    \# Logika simulasi Gerak Lurus Berubah Beraturan (GLBB)  
+	├── quiz\_screen.py             \# Logika dan UI untuk layar Kuis Adaptif  
+	├── source/                    \# Folder untuk file data  
+	│   ├── Akun.csv               \# Data akun pengguna (NIM, Password)  
+	│   ├── soal\_gl.csv            \# Soal kuis untuk Gerak Lurus  
+	│   └── soal\_shm.csv           \# Soal kuis untuk Gerak Harmonik (perlu ditambahkan)  
+	└── icons/                     \# Folder untuk aset ikon dan gambar  
+		├── atom.png               \# Logo aplikasi  
+		├── 1.png                  \# Ikon materi 1  
+		└── ...                    \# Ikon materi lainnya (2.png, 3.png, dst.)
 
 ### **5\. Instalasi**
 
 Untuk menjalankan aplikasi ini, ikuti langkah-langkah berikut:
 
 1. **Kloning Repositori (jika ada):**  
-   git clone \[URL\_REPOSITORI\_ANDA\]  
-   cd \[NAMA\_FOLDER\_PROYEK\]
+
+	   git clone \[URL\_REPOSITORI\_ANDA\]  
+	   cd \[NAMA\_FOLDER\_PROYEK\]
 
    *Jika Anda mengunduh file secara manual, pastikan struktur folder sesuai dengan yang dijelaskan di atas.*  
 2. Instal Dependensi Python:  
    Buka terminal atau Command Prompt di root directory proyek Anda dan jalankan perintah:  
-   pip install PyQt5 pygame pymunk
+  
+		pip install PyQt5 pygame pymunk
 
 3. **Pastikan File Data Ada:**  
-   * Pastikan Akun.csv ada di folder source/.  
-   * Pastikan soal\_gl.csv ada di folder source/. Jika belum ada, Anda bisa membuatnya dengan format:  
-     soal,a,b,c,d,correct  
-     Ini adalah soal pertama,Pilihan A,Pilihan B,Pilihan C,Pilihan D,Pilihan A
+   * Pastikan ```Akun.csv```ada di folder ```source/.```.  
+   * Pastikan ```soal\_gl.csv``` ada di folder ```source/.``` Jika belum ada, Anda bisa membuatnya dengan format:  
+     
+		 soal,a,b,c,d,correct  
+		 Ini adalah soal pertama,Pilihan A,Pilihan B,Pilihan C,Pilihan D,Pilihan A
 
    * Untuk kuis Gerak Harmonik, buat soal\_shm.csv di folder source/ dengan format yang sama.  
 4. **Pastikan Aset Ikon Ada:**  
-   * Pastikan folder icons/ ada di *root directory* proyek dan berisi atom.png serta ikon-ikon bernomor (1.png hingga 6.png).
+   * Pastikan folder ```icons/``` ada di *root directory* proyek dan berisi ```atom.png serta``` ikon-ikon bernomor (```1.png``` hingga ```6.png```).
 
 ### **6\. Cara Menjalankan Aplikasi**
 
 Setelah semua dependensi terinstal dan struktur proyek sudah benar:
 
 1. Buka terminal atau Command Prompt.  
-2. Navigasi ke *root directory* proyek Anda (misalnya, cd C:\\path\\to\\Physim).  
+2. Navigasi ke *root directory* proyek Anda (misalnya, ```cd C:\\path\\to\\Physim```).  
 3. Jalankan aplikasi dengan perintah:  
    python main.py
 
@@ -105,12 +108,17 @@ Aplikasi ini dirancang untuk mudah diperluas:
 
 ### **8\. Lisensi**
 
-Proyek ini dilisensikan di bawah \[Sebutkan jenis lisensi Anda, misal: MIT License / Apache 2.0 License / atau "Hak Cipta \[Tahun\] \[Nama Anda\]. Semua Hak Dilindungi Undang-Undang."\].
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
 
 ### **9\. Kontak**
 
 Untuk pertanyaan atau kolaborasi, silakan hubungi:
+* Talitha Ayunda Maritsa
+	
 
-* \[Nama Anda\]  
-* \[Email Anda\]  
-* \[Link Profil LinkedIn/GitHub Anda (opsional)\]
+* \[Nashr Ardy Wahyono\]  
+* \[nashrardy@Gmail.com\]  
+* [Linkedin](www.linkedin.com/in/nashr-ardy-wahyono)
+
